@@ -1,0 +1,22 @@
+.DS_Store
+.idea/
+.vscode/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/tsconfig.tsbuildinfo
+frontend/.env*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Backend
+backend/.gradle/
+backend/build/
+backend/out/
+backend/.env
+
+# Archives
+*.zip

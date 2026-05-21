@@ -1,0 +1,9 @@
+{
+  "name": "kcs-credit-report",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "sh ./scripts/dev.sh",
+    "dev:3001": "FRONTEND_PORT=3001 sh ./scripts/dev.sh"
+  }
+}
