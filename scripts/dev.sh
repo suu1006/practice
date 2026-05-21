@@ -5,6 +5,11 @@ set -e
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 
+if [ -z "$JAVA_HOME" ] && [ -x "/opt/homebrew/opt/openjdk@17/bin/java" ]; then
+  export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+  export PATH="$JAVA_HOME/bin:$PATH"
+fi
+
 cleanup() {
   if [ -n "$BACKEND_PID" ]; then
     kill "$BACKEND_PID" 2>/dev/null || true
