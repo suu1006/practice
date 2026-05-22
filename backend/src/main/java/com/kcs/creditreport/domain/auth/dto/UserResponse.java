@@ -1,7 +1,12 @@
 package com.kcs.creditreport.domain.auth.dto;
 
-public record UserResponse(
-        Long id,
-        String email
-) {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class UserResponse {
+
+    private Long id;
+    private String email;
 }

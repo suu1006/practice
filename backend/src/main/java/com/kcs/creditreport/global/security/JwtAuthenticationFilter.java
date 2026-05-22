@@ -28,8 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+            FilterChain filterChain) throws ServletException, IOException {
+        // 1. 헤더에서 토큰 추출
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
@@ -37,12 +37,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 2. 토큰 추출
         String token = authorizationHeader.substring(BEARER_PREFIX.length());
+        // 3. 토큰 검증
         try {
             String email = jwtProvider.getSubject(token, TokenType.ACCESS);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, List.of());
+            // 4. 인증 토큰 생성
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, null,
+                    List.of());
+            // 6. 인증 토큰 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 7. 다음 필터로 이동
             filterChain.doFilter(request, response);
         } catch (JwtException | IllegalArgumentException exception) {
             SecurityContextHolder.clearContext();

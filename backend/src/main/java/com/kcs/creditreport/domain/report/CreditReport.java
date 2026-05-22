@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -52,6 +53,7 @@ public class CreditReport {
     @Column(nullable = false, length = 500)
     private String summary;
 
+    @Builder(access = AccessLevel.PRIVATE)
     private CreditReport(
             User user,
             String title,
@@ -71,7 +73,21 @@ public class CreditReport {
         this.summary = summary;
     }
 
-    public static CreditReport create(
+    public static CreditReport create(CreateCommand command) {
+        return CreditReport.builder()
+                .user(command.user())
+                .title(command.title())
+                .agencyName(command.agencyName())
+                .creditScore(command.creditScore())
+                .creditGrade(command.creditGrade())
+                .issuedAt(command.issuedAt())
+                .residentRegistrationNumber(command.residentRegistrationNumber())
+                .summary(command.summary())
+                .build();
+    }
+
+    @Builder
+    public record CreateCommand(
             User user,
             String title,
             String agencyName,
@@ -81,7 +97,5 @@ public class CreditReport {
             String residentRegistrationNumber,
             String summary
     ) {
-        return new CreditReport(user, title, agencyName, creditScore, creditGrade, issuedAt, residentRegistrationNumber,
-                summary);
     }
 }

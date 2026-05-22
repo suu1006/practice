@@ -61,15 +61,15 @@ public class DataInitializer {
             LocalDate issuedAt,
             String residentRegistrationNumber
     ) {
-        return CreditReport.create(
-                user,
-                title,
-                agencyName,
-                creditScore,
-                creditGrade,
-                issuedAt,
-                residentRegistrationNumber,
-                "최근 금융 거래 이력, 상환 패턴, 카드 이용 안정성을 기반으로 산출된 샘플 신용평가 리포트입니다."
-        );
+        return CreditReport.create(CreditReport.CreateCommand.builder()
+                .user(user)
+                .title(title)
+                .agencyName(agencyName)
+                .creditScore(creditScore)
+                .creditGrade(creditGrade)
+                .issuedAt(issuedAt)
+                .residentRegistrationNumber(residentRegistrationNumber)
+                .summary("최근 금융 거래 이력, 상환 패턴, 카드 이용 안정성을 기반으로 산출된 샘플 신용평가 리포트입니다.")
+                .build());
     }
 }

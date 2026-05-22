@@ -33,7 +33,9 @@ public class AuthController {
         this.jwtProvider = jwtProvider;
     }
 
-    // 회원가입 + 토큰 발급
+    /**
+     * 회원가입 + 토큰 발급
+     */
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request,
             HttpServletResponse response) {
@@ -42,7 +44,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.toResponse(tokens));
     }
 
-    // 로그인 + 토큰 발급
+    /**
+     * 로그인 + 토큰 발급
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         AuthTokens tokens = authService.login(request);
@@ -50,7 +54,9 @@ public class AuthController {
         return ResponseEntity.ok(authService.toResponse(tokens));
     }
 
-    // 리프레시 토큰 갱신 + 토큰 발급
+    /**
+     * 리프레시 토큰 갱신 + 토큰 발급
+     */
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(
             @CookieValue(value = REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
@@ -64,7 +70,9 @@ public class AuthController {
         return ResponseEntity.ok(authService.toResponse(tokens));
     }
 
-    // 로그아웃
+    /**
+     * 로그아웃
+     */
     @PostMapping("/logout")
     public ResponseEntity<MessageResponse> logout(Principal principal, HttpServletResponse response) {
         if (principal == null) {
@@ -76,17 +84,23 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("로그아웃되었습니다."));
     }
 
+    /**
+     * 리프레시 토큰 쿠키 추가
+     */
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
-                .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax") // 다른 사이트 임의요청에는 거부
+                .httpOnly(true) // js 접근 불가
+                .secure(false) // HTTP도 허용 (TODO : 운영 시 , true로 설정)
+                .sameSite("Lax") // 타사이트 POST 차단
                 .path("/api")
                 .maxAge(jwtProvider.getRefreshTokenMaxAgeSeconds())
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
+    /**
+     * 리프레시 토큰 쿠키 만료
+     */
     private void expireRefreshTokenCookie(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, "")
                 .httpOnly(true)

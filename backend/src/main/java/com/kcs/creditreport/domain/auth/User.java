@@ -7,7 +7,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "users")
 public class User {
@@ -28,9 +33,6 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    protected User() {
-    }
-
     private User(String email, String passwordHash) {
         this.email = email;
         this.passwordHash = passwordHash;
@@ -39,22 +41,6 @@ public class User {
 
     public static User create(String email, String passwordHash) {
         return new User(email, passwordHash);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public String getRefreshTokenHash() {
-        return refreshTokenHash;
     }
 
     public void updateRefreshTokenHash(String refreshTokenHash) {

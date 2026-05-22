@@ -1,7 +1,12 @@
 package com.kcs.creditreport.global.exception;
 
-public record FieldErrorDetail(
-        String field,
-        String message
-) {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class FieldErrorDetail {
+
+    private String field;
+    private String message;
 }

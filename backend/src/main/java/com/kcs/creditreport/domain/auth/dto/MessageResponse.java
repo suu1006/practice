@@ -1,6 +1,11 @@
 package com.kcs.creditreport.domain.auth.dto;
 
-public record MessageResponse(
-        String message
-) {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class MessageResponse {
+
+    private String message;
 }

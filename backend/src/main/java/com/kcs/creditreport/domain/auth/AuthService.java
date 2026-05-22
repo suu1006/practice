@@ -28,13 +28,13 @@ public class AuthService {
     @Transactional
     public AuthTokens signup(SignupRequest request) {
         // 1. 이메일 중복 체크
-        String email = normalizeEmail(request.email());
+        String email = normalizeEmail(request.getEmail());
         if (userRepository.existsByEmail(email)) {
             throw new BusinessException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
         }
 
         // 2. 사용자 생성
-        User user = User.create(email, passwordEncoder.encode(request.password()));
+        User user = User.create(email, passwordEncoder.encode(request.getPassword()));
         // 3. 사용자 저장
         userRepository.save(user);
         // 4. 토큰 발급
@@ -43,11 +43,11 @@ public class AuthService {
 
     @Transactional
     public AuthTokens login(LoginRequest request) {
-        String email = normalizeEmail(request.email());
+        String email = normalizeEmail(request.getEmail());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."));
 
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new BusinessException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 

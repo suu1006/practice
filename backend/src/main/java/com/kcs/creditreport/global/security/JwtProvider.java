@@ -38,7 +38,7 @@ public class JwtProvider {
                 .verifyWith(secretKey)
                 .requireIssuer(properties.issuer())
                 .build()
-                .parseSignedClaims(token)
+                .parseSignedClaims(token) // 서명 ,issuer, 만료시간 검증
                 .getPayload();
 
         String tokenType = claims.get(TOKEN_TYPE_CLAIM, String.class);
