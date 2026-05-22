@@ -32,6 +32,12 @@ npm run dev
 
 Homebrew로 설치한 Java 17은 실행 스크립트가 `/opt/homebrew/opt/openjdk@17` 경로를 자동으로 잡습니다.
 
+주민등록번호 컬럼은 JPA `AttributeConverter`로 암호화 저장합니다. 로컬 기본 키가 있으며, 별도 키를 쓰려면 아래 환경변수를 설정합니다.
+
+```bash
+export KCS_RRN_CRYPTO_KEY="replace-with-local-secret"
+```
+
 기본 주소는 다음과 같습니다.
 
 - Frontend: `http://localhost:3000`

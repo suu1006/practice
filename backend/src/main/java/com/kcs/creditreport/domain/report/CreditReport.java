@@ -2,6 +2,7 @@ package com.kcs.creditreport.domain.report;
 
 import com.kcs.creditreport.domain.auth.User;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +45,8 @@ public class CreditReport {
     @Column(nullable = false)
     private LocalDate issuedAt;
 
-    @Column(nullable = false, length = 20)
+    @Convert(converter = ResidentRegistrationNumberConverter.class)
+    @Column(nullable = false, length = 255)
     private String residentRegistrationNumber;
 
     @Column(nullable = false, length = 500)
