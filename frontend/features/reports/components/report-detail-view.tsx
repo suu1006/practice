@@ -15,7 +15,8 @@ export function ReportDetailView({ reportId }: ReportDetailViewProps) {
     queryKey: ["reports", reportId],
     queryFn: () => getReportDetail(reportId),
     enabled: Number.isFinite(Number(reportId)),
-    staleTime: 30 * 1000
+    staleTime: 0,
+    refetchOnMount: "always"
   });
 
   if (reportQuery.isLoading) {
