@@ -7,7 +7,7 @@ export type PageResponse<T> = {
 };
 
 export type CreditReportSummary = {
-  id: string;
+  id: number;
   title: string;
   agencyName: string;
   creditScore: number;
