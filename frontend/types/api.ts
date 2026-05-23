@@ -19,3 +19,13 @@ export type CreditReportDetail = CreditReportSummary & {
   maskedResidentRegistrationNumber: string;
   summary: string;
 };
+
+export type ReportViewHistory = {
+  id: number;
+  reportId: number;
+  reportTitle: string;
+  agencyName: string;
+  creditScore: number;
+  creditGrade: number;
+  viewedAt: string;
+};
