@@ -14,3 +14,8 @@ export type CreditReportSummary = {
   creditGrade: number;
   issuedAt: string;
 };
+
+export type CreditReportDetail = CreditReportSummary & {
+  maskedResidentRegistrationNumber: string;
+  summary: string;
+};

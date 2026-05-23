@@ -1,5 +1,5 @@
 import { http } from "@/lib/http";
-import type { CreditReportSummary, PageResponse } from "@/types/api";
+import type { CreditReportDetail, CreditReportSummary, PageResponse } from "@/types/api";
 
 export type ReportListParams = {
   page: number;
@@ -26,5 +26,10 @@ export async function getReports(params: ReportListParams) {
     }
   });
 
+  return data;
+}
+
+export async function getReportDetail(reportId: string) {
+  const { data } = await http.get<CreditReportDetail>(`/reports/${reportId}`);
   return data;
 }
