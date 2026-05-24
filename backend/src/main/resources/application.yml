@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.h2.Driver
   h2:
     console:
-      enabled: true
+      enabled: false
       path: /h2-console
   jpa:
     hibernate:
@@ -28,7 +28,7 @@ app:
     issuer: kcs-credit-report
     access-token-expiration-minutes: 30
     refresh-token-expiration-days: 14
-    secret: change-me-to-a-strong-local-secret-before-review
+    secret: ${JWT_SECRET:change-me-to-a-strong-local-secret-before-review}
   cors:
     allowed-origins:
       - http://localhost:3000
