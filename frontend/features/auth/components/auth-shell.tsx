@@ -20,7 +20,7 @@ export function AuthShell({ mode }: AuthShellProps) {
   const searchParams = useSearchParams();
   const isLogin = mode === "login";
   const redirectParam = searchParams.get("redirect");
-  const redirectTo = redirectParam?.startsWith("/") ? redirectParam : "/reports";
+  const redirectTo = redirectParam?.startsWith("/") && !redirectParam.startsWith("//") ? redirectParam : "/reports";
   const accessToken = useAuthStore((state) => state.accessToken);
   const setSession = useAuthStore((state) => state.setSession);
   const [form, setForm] = useState<AuthRequest>({ email: "", password: "" });
@@ -90,6 +90,11 @@ export function AuthShell({ mode }: AuthShellProps) {
               value={form.password}
               onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
             />
+            {!isLogin && (
+              <span className="mt-1.5 block text-xs text-muted">
+                8자 이상, 영문 · 숫자 · 특수문자를 포함해야 합니다.
+              </span>
+            )}
           </label>
           {(clientError || mutation.isError) && (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p>
