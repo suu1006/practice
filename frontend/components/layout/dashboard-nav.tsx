@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileClock, LogOut, ShieldCheck } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/features/auth/api/auth-api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function DashboardNav() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const clearSession = useAuthStore((state) => state.clearSession);
   const user = useAuthStore((state) => state.user);
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSettled: () => {
+      queryClient.clear();
       clearSession();
       router.replace("/login");
     }

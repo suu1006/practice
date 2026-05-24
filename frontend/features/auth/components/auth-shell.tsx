@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { login, signup } from "@/features/auth/api/auth-api";
@@ -16,6 +16,7 @@ type AuthShellProps = {
 
 export function AuthShell({ mode }: AuthShellProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const isLogin = mode === "login";
   const redirectParam = searchParams.get("redirect");
@@ -28,6 +29,7 @@ export function AuthShell({ mode }: AuthShellProps) {
   const mutation = useMutation<AuthResponse, AxiosError<{ message?: string }>, AuthRequest>({
     mutationFn: isLogin ? login : signup,
     onSuccess: (response) => {
+      queryClient.clear();
       setSession(response);
       router.replace(redirectTo as Route);
     }
