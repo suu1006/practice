@@ -19,6 +19,7 @@ test("로그인 후 리포트 목록 테이블을 조회할 수 있다", async (
   await expect(page.getByRole("columnheader", { name: "등급" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "발급일" })).toBeVisible();
   await expect(firstReport).toBeVisible();
+  await expect(firstReport).toHaveAttribute("href", /\/reports\/\d+$/);
 });
 
 test("리포트 상세 조회 후 조회 이력에 기록된다", async ({ page }) => {

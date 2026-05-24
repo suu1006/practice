@@ -1,9 +1,10 @@
 "use client";
 
 import type { Route } from "next";
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, MouseEvent, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getReports, type ReportListParams } from "@/features/reports/api/report-api";
 import { Button } from "@/components/ui/button";
@@ -186,23 +187,28 @@ export function ReportListView() {
               <tbody>
                 {reports.map((report) => {
                   const reportPath = `/reports/${report.id}` as Route;
-                  const handleRowKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      router.push(reportPath);
+                  const handleRowClick = (event: MouseEvent<HTMLTableRowElement>) => {
+                    if (event.target instanceof Element && event.target.closest("a")) {
+                      return;
                     }
+
+                    router.push(reportPath);
                   };
 
                   return (
                     <tr
                       key={report.id}
-                      className="cursor-pointer border-b border-slate-100 last:border-b-0 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand"
-                      role="link"
-                      tabIndex={0}
-                      onClick={() => router.push(reportPath)}
-                      onKeyDown={handleRowKeyDown}
+                      className="cursor-pointer border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+                      onClick={handleRowClick}
                     >
-                      <td className="px-5 py-4 font-medium text-ink">{report.title}</td>
+                      <td className="px-5 py-4 font-medium text-ink">
+                        <Link
+                          className="text-brand underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-brand"
+                          href={reportPath}
+                        >
+                          {report.title}
+                        </Link>
+                      </td>
                       <td className="px-5 py-4 text-muted">{report.agencyName}</td>
                       <td className="px-5 py-4 text-muted">{report.creditScore}</td>
                       <td className="px-5 py-4 text-muted">{report.creditGrade}등급</td>
