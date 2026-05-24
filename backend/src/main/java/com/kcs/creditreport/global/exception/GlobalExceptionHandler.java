@@ -1,6 +1,7 @@
 package com.kcs.creditreport.global.exception;
 
 import io.jsonwebtoken.JwtException;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), "요청 값이 올바르지 않습니다.", errors));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException() {
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), "요청 값이 올바르지 않습니다."));
     }
 
     @ExceptionHandler(JwtException.class)

@@ -54,6 +54,52 @@ class CreditReportControllerTest {
     }
 
     @Test
+    void getMyReportsRejectsInvalidPageParameters() throws Exception {
+        String accessToken = bearerToken();
+
+        mockMvc.perform(get("/reports")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("page", "-1")
+                        .param("size", "10"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/reports")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("page", "0")
+                        .param("size", "0"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/reports")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("page", "0")
+                        .param("size", "101"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getMyHistoriesRejectsInvalidPageParameters() throws Exception {
+        String accessToken = bearerToken();
+
+        mockMvc.perform(get("/histories")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("page", "-1")
+                        .param("size", "10"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/histories")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("page", "0")
+                        .param("size", "0"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/histories")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("page", "0")
+                        .param("size", "101"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getMyReportDetailRecordsEveryViewHistory() throws Exception {
         String accessToken = bearerToken();
 
