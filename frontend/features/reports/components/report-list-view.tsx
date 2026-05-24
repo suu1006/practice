@@ -1,9 +1,9 @@
 "use client";
 
 import type { Route } from "next";
-import { FormEvent, MouseEvent, useEffect, useMemo, useState } from "react";
+import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getReports, type ReportListParams } from "@/features/reports/api/report-api";
@@ -21,9 +21,58 @@ export function ReportListView() {
   const params = useMemo(() => parseReportListParams(searchParams), [searchParams]);
   const [keywordInput, setKeywordInput] = useState(params.keyword ?? "");
 
+  const updateParams = useCallback(
+    (next: Partial<ReportListParams>) => {
+      const merged = { ...params, ...next };
+      const query = new URLSearchParams();
+
+      if (merged.page > 0) {
+        query.set("page", String(merged.page));
+      }
+      if (merged.keyword) {
+        query.set("keyword", merged.keyword);
+      }
+      if (merged.creditGrade) {
+        query.set("creditGrade", merged.creditGrade);
+      }
+      if (merged.from) {
+        query.set("from", merged.from);
+      }
+      if (merged.to) {
+        query.set("to", merged.to);
+      }
+      if (merged.sortBy !== "issuedAt") {
+        query.set("sortBy", merged.sortBy);
+      }
+      if (merged.direction !== "desc") {
+        query.set("direction", merged.direction);
+      }
+
+      const nextUrl = query.toString() ? `${pathname}?${query.toString()}` : pathname;
+      router.replace(nextUrl as Route);
+    },
+    [params, pathname, router]
+  );
+
   useEffect(() => {
     setKeywordInput(params.keyword ?? "");
   }, [params.keyword]);
+
+  useEffect(() => {
+    const keyword = keywordInput.trim();
+
+    if (keyword === (params.keyword ?? "")) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      updateParams({ keyword, page: 0 });
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [keywordInput, params.keyword, updateParams]);
 
   const reportsQuery = useQuery({
     queryKey: ["reports", params],
@@ -31,44 +80,13 @@ export function ReportListView() {
     staleTime: 60 * 1000
   });
 
-  const updateParams = (next: Partial<ReportListParams>) => {
-    const merged = { ...params, ...next };
-    const query = new URLSearchParams();
-
-    if (merged.page > 0) {
-      query.set("page", String(merged.page));
-    }
-    if (merged.keyword) {
-      query.set("keyword", merged.keyword);
-    }
-    if (merged.creditGrade) {
-      query.set("creditGrade", merged.creditGrade);
-    }
-    if (merged.from) {
-      query.set("from", merged.from);
-    }
-    if (merged.to) {
-      query.set("to", merged.to);
-    }
-    if (merged.sortBy !== "issuedAt") {
-      query.set("sortBy", merged.sortBy);
-    }
-    if (merged.direction !== "desc") {
-      query.set("direction", merged.direction);
-    }
-
-    const nextUrl = query.toString() ? `${pathname}?${query.toString()}` : pathname;
-    router.replace(nextUrl as Route);
-  };
-
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    updateParams({ keyword: keywordInput.trim(), page: 0 });
-  };
-
   const handleReset = () => {
     setKeywordInput("");
     router.replace(pathname as Route);
+  };
+
+  const handleDateInputClick = (event: MouseEvent<HTMLInputElement>) => {
+    event.currentTarget.showPicker?.();
   };
 
   const reports = reportsQuery.data?.content ?? [];
@@ -87,7 +105,7 @@ export function ReportListView() {
             <h1 className="text-2xl font-semibold text-ink">신용평가 리포트</h1>
             <p className="mt-2 text-sm text-muted">검색, 필터, 정렬 조건은 URL에 저장됩니다.</p>
           </div>
-          <form className="flex w-full flex-col gap-2 sm:flex-row md:w-auto" onSubmit={handleSearch}>
+          <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
             <div className="flex h-10 min-w-72 items-center gap-2 rounded-md border border-slate-300 bg-white px-3">
               <Search className="h-4 w-4 text-muted" aria-hidden />
               <input
@@ -97,28 +115,33 @@ export function ReportListView() {
                 onChange={(event) => setKeywordInput(event.target.value)}
               />
             </div>
-            <Button type="submit">검색</Button>
             <Button type="button" variant="secondary" onClick={handleReset} aria-label="조건 초기화">
               <RotateCcw className="h-4 w-4" aria-hidden />
             </Button>
-          </form>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4">
           <label className="text-sm font-medium text-ink">
             신용등급
-            <select
-              className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand"
-              value={params.creditGrade ?? ""}
-              onChange={(event) => updateParams({ creditGrade: event.target.value, page: 0 })}
-            >
-              <option value="">전체</option>
-              {gradeOptions.map((grade) => (
-                <option key={grade} value={grade}>
-                  {grade}등급
-                </option>
-              ))}
-            </select>
+            <span className="relative mt-2 block">
+              <select
+                className="h-10 w-full appearance-none rounded-md border border-slate-300 bg-white py-0 pl-3 pr-11 text-sm outline-none focus:border-brand"
+                value={params.creditGrade ?? ""}
+                onChange={(event) => updateParams({ creditGrade: event.target.value, page: 0 })}
+              >
+                <option value="">전체</option>
+                {gradeOptions.map((grade) => (
+                  <option key={grade} value={grade}>
+                    {grade}등급
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink"
+                aria-hidden
+              />
+            </span>
           </label>
           <label className="text-sm font-medium text-ink">
             발급 시작일
@@ -126,6 +149,7 @@ export function ReportListView() {
               className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand"
               type="date"
               value={params.from ?? ""}
+              onClick={handleDateInputClick}
               onChange={(event) => updateParams({ from: event.target.value, page: 0 })}
             />
           </label>
@@ -135,27 +159,34 @@ export function ReportListView() {
               className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand"
               type="date"
               value={params.to ?? ""}
+              onClick={handleDateInputClick}
               onChange={(event) => updateParams({ to: event.target.value, page: 0 })}
             />
           </label>
           <label className="text-sm font-medium text-ink">
             정렬
-            <select
-              className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand"
-              value={`${params.sortBy}:${params.direction}`}
-              onChange={(event) => {
-                const [sortBy, direction] = event.target.value.split(":") as [
-                  ReportListParams["sortBy"],
-                  ReportListParams["direction"]
-                ];
-                updateParams({ sortBy, direction, page: 0 });
-              }}
-            >
-              <option value="issuedAt:desc">발급일 최신순</option>
-              <option value="issuedAt:asc">발급일 오래된순</option>
-              <option value="creditScore:desc">신용점수 높은순</option>
-              <option value="creditScore:asc">신용점수 낮은순</option>
-            </select>
+            <span className="relative mt-2 block">
+              <select
+                className="h-10 w-full appearance-none rounded-md border border-slate-300 bg-white py-0 pl-3 pr-11 text-sm outline-none focus:border-brand"
+                value={`${params.sortBy}:${params.direction}`}
+                onChange={(event) => {
+                  const [sortBy, direction] = event.target.value.split(":") as [
+                    ReportListParams["sortBy"],
+                    ReportListParams["direction"]
+                  ];
+                  updateParams({ sortBy, direction, page: 0 });
+                }}
+              >
+                <option value="issuedAt:desc">발급일 최신순</option>
+                <option value="issuedAt:asc">발급일 오래된순</option>
+                <option value="creditScore:desc">신용점수 높은순</option>
+                <option value="creditScore:asc">신용점수 낮은순</option>
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink"
+                aria-hidden
+              />
+            </span>
           </label>
         </div>
       </div>

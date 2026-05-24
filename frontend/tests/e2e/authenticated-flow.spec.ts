@@ -22,12 +22,40 @@ test("로그인 후 리포트 목록 테이블을 조회할 수 있다", async (
   await expect(firstReport).toHaveAttribute("href", /\/reports\/\d+$/);
 });
 
+test("검색어를 입력하면 리포트 목록이 실시간으로 필터링된다", async ({ page }) => {
+  await login(page);
+
+  await page.getByPlaceholder("제목 또는 발급기관 검색").fill("카드");
+
+  await expect(page).toHaveURL(/keyword=%EC%B9%B4%EB%93%9C/);
+  await expect(page.getByRole("link", { name: "카드 이용 기반 신용 리포트" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /2026 상반기 개인 신용평가/ })).toHaveCount(0);
+});
+
+test("발급일 입력창을 클릭하면 날짜 선택기가 열린다", async ({ page }) => {
+  await login(page);
+  await page.evaluate(() => {
+    type PickerWindow = Window & { __showPickerCalls?: number };
+    const pickerWindow = window as PickerWindow;
+    pickerWindow.__showPickerCalls = 0;
+    HTMLInputElement.prototype.showPicker = function () {
+      pickerWindow.__showPickerCalls = (pickerWindow.__showPickerCalls ?? 0) + 1;
+    };
+  });
+
+  await page.getByLabel("발급 시작일").click();
+
+  await expect
+    .poll(() => page.evaluate(() => (window as Window & { __showPickerCalls?: number }).__showPickerCalls ?? 0))
+    .toBe(1);
+});
+
 test("리포트 상세 조회 후 조회 이력에 기록된다", async ({ page }) => {
   await login(page);
   await page.getByRole("link", { name: "조회 이력" }).click();
   await expect(page).toHaveURL(/\/history$/);
 
-  await page.getByRole("link", { name: "리포트" }).click();
+  await page.getByRole("link", { name: "리포트", exact: true }).click();
   await expect(page).toHaveURL(/\/reports$/);
   await page.getByRole("link", { name: /2026 상반기 개인 신용평가/ }).click();
   await expect(page).toHaveURL(/\/reports\/\d+$/);
