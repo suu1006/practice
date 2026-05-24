@@ -23,16 +23,17 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    if (refreshQuery.data) {
+    if (refreshQuery.isSuccess && refreshQuery.data) {
       setSession(refreshQuery.data);
     }
-  }, [refreshQuery.data, setSession]);
+  }, [refreshQuery.data, refreshQuery.isSuccess, setSession]);
 
   useEffect(() => {
-    if (refreshQuery.isError) {
+    if (refreshQuery.isError && !isInitialized) {
       clearSession();
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [clearSession, refreshQuery.isError]);
+  }, [clearSession, isInitialized, pathname, refreshQuery.isError, router]);
 
   useEffect(() => {
     if (isInitialized && !accessToken) {
@@ -40,10 +41,33 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [accessToken, isInitialized, pathname, router]);
 
-  if (!isInitialized || !accessToken) {
+  useEffect(() => {
+    if (isInitialized || accessToken) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      clearSession();
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [accessToken, clearSession, isInitialized, pathname, router]);
+
+  if (refreshQuery.isPending && !isInitialized) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface text-sm text-muted">
         인증 상태를 확인하는 중입니다.
+      </div>
+    );
+  }
+
+  if (!accessToken) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface text-sm text-muted">
+        로그인 페이지로 이동하는 중입니다.
       </div>
     );
   }
