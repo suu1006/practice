@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Building2, CalendarDays, Fingerprint, ShieldCheck } from "lucide-react";
 import { getReportDetail } from "@/features/reports/api/report-api";
@@ -15,15 +16,17 @@ export function ReportDetailView({ reportId }: ReportDetailViewProps) {
   const queryClient = useQueryClient();
   const reportQuery = useQuery({
     queryKey: ["reports", reportId],
-    queryFn: async () => {
-      const report = await getReportDetail(reportId);
-      await queryClient.invalidateQueries({ queryKey: ["histories"] });
-      return report;
-    },
+    queryFn: () => getReportDetail(reportId),
     enabled: Number.isFinite(Number(reportId)),
     staleTime: 0,
     refetchOnMount: "always"
   });
+
+  useEffect(() => {
+    if (reportQuery.isSuccess) {
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+    }
+  }, [reportQuery.isSuccess, queryClient]);
 
   if (reportQuery.isLoading) {
     return <StateMessage message="리포트를 불러오는 중입니다." variant="panel" />;
