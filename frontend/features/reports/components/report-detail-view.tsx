@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Building2, CalendarDays, Fingerprint, ShieldCheck } from "lucide-react";
 import { getReportDetail } from "@/features/reports/api/report-api";
+import { StateMessage } from "@/components/ui/state-message";
 
 type ReportDetailViewProps = {
   reportId: string;
@@ -20,14 +21,14 @@ export function ReportDetailView({ reportId }: ReportDetailViewProps) {
   });
 
   if (reportQuery.isLoading) {
-    return <StateMessage message="리포트를 불러오는 중입니다." />;
+    return <StateMessage message="리포트를 불러오는 중입니다." variant="panel" />;
   }
 
   if (reportQuery.isError || !reportQuery.data) {
     return (
       <section className="space-y-5">
         <BackLink />
-        <StateMessage message="리포트 상세 정보를 불러오지 못했습니다." tone="danger" />
+        <StateMessage message="리포트 상세 정보를 불러오지 못했습니다." tone="danger" variant="panel" />
       </section>
     );
   }
@@ -91,20 +92,6 @@ function InfoRow({ icon, label, value }: { icon: ReactNode; label: string; value
         {label}
       </dt>
       <dd className="text-right font-medium text-ink">{value}</dd>
-    </div>
-  );
-}
-
-function StateMessage({ message, tone = "default" }: { message: string; tone?: "default" | "danger" }) {
-  return (
-    <div
-      className={
-        tone === "danger"
-          ? "rounded-lg border border-red-100 bg-white p-8 text-center text-sm text-red-700"
-          : "rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-muted"
-      }
-    >
-      {message}
     </div>
   );
 }

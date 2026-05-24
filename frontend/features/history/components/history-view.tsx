@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getHistories } from "@/features/history/api/history-api";
 import { Button } from "@/components/ui/button";
+import { StateMessage } from "@/components/ui/state-message";
 
 const PAGE_SIZE = 10;
 
@@ -84,14 +85,6 @@ export function HistoryView() {
         </Button>
       </div>
     </section>
-  );
-}
-
-function StateMessage({ message, tone = "default" }: { message: string; tone?: "default" | "danger" }) {
-  return (
-    <div className={tone === "danger" ? "p-8 text-center text-sm text-red-700" : "p-8 text-center text-sm text-muted"}>
-      {message}
-    </div>
   );
 }
 

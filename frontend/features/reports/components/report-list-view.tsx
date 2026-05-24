@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getReports, type ReportListParams } from "@/features/reports/api/report-api";
 import { Button } from "@/components/ui/button";
+import { StateMessage } from "@/components/ui/state-message";
 
 const PAGE_SIZE = 10;
 
@@ -210,14 +211,6 @@ export function ReportListView() {
         </Button>
       </div>
     </section>
-  );
-}
-
-function StateMessage({ message, tone = "default" }: { message: string; tone?: "default" | "danger" }) {
-  return (
-    <div className={tone === "danger" ? "p-8 text-center text-sm text-red-700" : "p-8 text-center text-sm text-muted"}>
-      {message}
-    </div>
   );
 }
 
