@@ -23,7 +23,11 @@ test("로그인 후 리포트 목록 테이블을 조회할 수 있다", async (
 
 test("리포트 상세 조회 후 조회 이력에 기록된다", async ({ page }) => {
   await login(page);
+  await page.getByRole("link", { name: "조회 이력" }).click();
+  await expect(page).toHaveURL(/\/history$/);
 
+  await page.getByRole("link", { name: "리포트" }).click();
+  await expect(page).toHaveURL(/\/reports$/);
   await page.getByRole("link", { name: /2026 상반기 개인 신용평가/ }).click();
   await expect(page).toHaveURL(/\/reports\/\d+$/);
   const reportTitle = await page.getByRole("heading", { level: 1 }).innerText();
