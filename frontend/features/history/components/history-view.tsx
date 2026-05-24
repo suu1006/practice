@@ -26,6 +26,7 @@ export function HistoryView() {
   const histories = historiesQuery.data?.content ?? [];
   const totalPages = historiesQuery.data?.totalPages ?? 0;
   const totalElements = historiesQuery.data?.totalElements ?? 0;
+  const hasHistories = histories.length > 0;
   const canGoPrev = page > 0;
   const canGoNext = totalPages > 0 && page + 1 < totalPages;
 
@@ -45,13 +46,18 @@ export function HistoryView() {
           <h1 className="text-2xl font-semibold text-ink">조회 이력</h1>
           <p className="mt-2 text-sm text-muted">같은 리포트를 여러 번 조회해도 각 시점을 기록합니다.</p>
         </div>
-        <span className="text-sm text-muted">총 {totalElements.toLocaleString()}건</span>
+        <div className="flex flex-col gap-1 text-sm text-muted md:items-end">
+          <span>총 {totalElements.toLocaleString()}건</span>
+          {historiesQuery.isError && hasHistories && (
+            <span className="text-red-700">최신 정보를 불러오지 못했습니다.</span>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white">
         {historiesQuery.isLoading && <StateMessage message="조회 이력을 불러오는 중입니다." />}
-        {historiesQuery.isError && <StateMessage message="조회 이력을 불러오지 못했습니다." tone="danger" />}
-        {!historiesQuery.isLoading && !historiesQuery.isError && histories.length === 0 && (
+        {historiesQuery.isError && !hasHistories && <StateMessage message="조회 이력을 불러오지 못했습니다." tone="danger" />}
+        {!historiesQuery.isLoading && !historiesQuery.isError && !hasHistories && (
           <StateMessage message="아직 조회한 리포트가 없습니다." />
         )}
         {histories.map((history) => (

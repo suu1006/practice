@@ -74,6 +74,7 @@ export function ReportListView() {
   const page = reportsQuery.data?.page ?? params.page;
   const totalPages = reportsQuery.data?.totalPages ?? 0;
   const totalElements = reportsQuery.data?.totalElements ?? 0;
+  const hasReports = reports.length > 0;
   const canGoPrev = page > 0;
   const canGoNext = totalPages > 0 && page + 1 < totalPages;
 
@@ -160,16 +161,17 @@ export function ReportListView() {
 
       <div className="mt-6 flex items-center justify-between text-sm text-muted">
         <span>총 {totalElements.toLocaleString()}건</span>
-        {reportsQuery.isFetching && <span>조회 중</span>}
+        {reportsQuery.isError && hasReports && <span className="text-red-700">최신 정보를 불러오지 못했습니다.</span>}
+        {reportsQuery.isFetching && !reportsQuery.isError && <span>조회 중</span>}
       </div>
 
       <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
         {reportsQuery.isLoading && <StateMessage message="리포트를 불러오는 중입니다." />}
-        {reportsQuery.isError && <StateMessage message="리포트를 불러오지 못했습니다." tone="danger" />}
-        {!reportsQuery.isLoading && !reportsQuery.isError && reports.length === 0 && (
+        {reportsQuery.isError && !hasReports && <StateMessage message="리포트를 불러오지 못했습니다." tone="danger" />}
+        {!reportsQuery.isLoading && !reportsQuery.isError && !hasReports && (
           <StateMessage message="조건에 맞는 리포트가 없습니다." />
         )}
-        {reports.length > 0 && (
+        {hasReports && (
           <div className="overflow-x-auto">
             <table className="min-w-[760px] w-full border-collapse text-left text-sm">
               <thead className="bg-slate-50 text-xs font-semibold text-muted">
