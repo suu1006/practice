@@ -50,6 +50,15 @@ test("발급일 입력창을 클릭하면 날짜 선택기가 열린다", async 
     .toBe(1);
 });
 
+test("외부 redirect 파라미터는 로그인 후 기본 리포트 경로로 대체된다", async ({ page }) => {
+  await page.goto("/login?redirect=//evil.example/path");
+  await page.getByLabel("이메일").fill("test@example.com");
+  await page.getByLabel("비밀번호").fill("Password1!");
+  await page.getByRole("button", { name: "로그인" }).click();
+
+  await expect(page).toHaveURL(/\/reports$/);
+});
+
 test("리포트 상세 조회 후 조회 이력에 기록된다", async ({ page }) => {
   await login(page);
   await page.getByRole("link", { name: "조회 이력" }).click();

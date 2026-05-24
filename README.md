@@ -23,7 +23,7 @@
 
 ```text
 .
-├── frontend/        # Next.js 14 App Router 프로젝트
+├── frontend/        # Next.js App Router 프로젝트
 ├── backend/         # Spring Boot 3.x 프로젝트
 └── README.md
 ```
@@ -75,6 +75,12 @@ Homebrew로 설치한 Java 17은 실행 스크립트가 `/opt/homebrew/opt/openj
 
 ```bash
 export KCS_RRN_CRYPTO_KEY="replace-with-local-secret"
+```
+
+JWT 서명 키도 환경변수로 교체할 수 있습니다.
+
+```bash
+export JWT_SECRET="replace-with-at-least-32-byte-secret"
 ```
 
 기본 주소는 다음과 같습니다.
@@ -286,14 +292,14 @@ Authorization Header가 필요하며, DB에 저장된 Refresh Token 해시와 Co
 
 - **Refresh Token 재사용 탐지와 토큰 패밀리 관리**: 과제 범위에서는 로그아웃 시 현재 Refresh Token 해시를 무효화하는 수준으로 구현했습니다. 운영 환경이라면 탈취 의심 상황을 추적하기 위해 토큰 패밀리와 재사용 탐지를 추가해야 합니다.
 - **Swagger/OpenAPI 문서 자동화**: README의 표와 예시 JSON으로 API 명세를 제공했습니다. 과제 시간 범위에서는 별도 Swagger UI 구성보다 핵심 API 구현과 실행 편의성을 우선했습니다.
-- **운영용 환경변수 분리와 HTTPS Cookie `Secure=true` 적용**: 로컬 실행 편의성을 위해 기본 설정은 HTTP localhost 기준입니다. 운영 배포 시에는 환경별 설정 파일과 HTTPS 기반 Secure Cookie 설정이 필요합니다.
+- **운영 환경 프로파일과 HTTPS Cookie `Secure=true` 적용**: JWT와 주민등록번호 암호화 키는 환경변수로 교체 가능하게 했지만, 로컬 실행 편의성을 위해 Cookie 기본 설정은 HTTP localhost 기준입니다. 운영 배포 시에는 환경별 프로파일과 HTTPS 기반 Secure Cookie 설정이 필요합니다.
 - **더 세밀한 접근성 점검과 모바일 UI 개선**: 기본적인 키보드 이동, 로딩/에러/빈 상태는 구성했지만, 스크린리더 흐름과 모바일 UX는 추가 점검 여지가 있습니다.
 
 ## 추후 개선 항목
 
 - Refresh Token 재사용 탐지와 토큰 패밀리 관리
 - Swagger/OpenAPI 문서 자동화
-- 운영용 환경변수 분리와 HTTPS Cookie `Secure=true` 적용
+- 운영 환경 프로파일과 HTTPS Cookie `Secure=true` 적용
 - 더 세밀한 접근성 점검과 모바일 UI 개선
 
 ## Git 규칙
