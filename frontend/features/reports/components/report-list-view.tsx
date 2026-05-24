@@ -19,6 +19,19 @@ export function ReportListView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = useMemo(() => parseReportListParams(searchParams), [searchParams]);
+  const queryKey = useMemo(
+    () => ({
+      page: params.page,
+      size: params.size,
+      keyword: params.keyword || undefined,
+      creditGrade: params.creditGrade || undefined,
+      from: params.from || undefined,
+      to: params.to || undefined,
+      sortBy: params.sortBy,
+      direction: params.direction
+    }),
+    [params]
+  );
   const keywordSearchTimeoutRef = useRef<number | null>(null);
 
   const updateParams = useCallback(
@@ -55,7 +68,7 @@ export function ReportListView() {
   );
 
   const reportsQuery = useQuery({
-    queryKey: ["reports", params],
+    queryKey: ["reports", queryKey],
     queryFn: () => getReports(params),
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000
