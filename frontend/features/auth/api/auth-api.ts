@@ -2,12 +2,12 @@ import { http, publicHttp } from "@/lib/http";
 import type { AuthRequest, AuthResponse, MessageResponse } from "@/features/auth/types";
 
 export async function login(request: AuthRequest) {
-  const { data } = await http.post<AuthResponse>("/auth/login", request);
+  const { data } = await publicHttp.post<AuthResponse>("/auth/login", request);
   return data;
 }
 
 export async function signup(request: AuthRequest) {
-  const { data } = await http.post<AuthResponse>("/auth/signup", request);
+  const { data } = await publicHttp.post<AuthResponse>("/auth/signup", request);
   return data;
 }
 
