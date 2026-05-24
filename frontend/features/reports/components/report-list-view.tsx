@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, MouseEvent, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
 import Link from "next/link";
@@ -19,7 +19,7 @@ export function ReportListView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = useMemo(() => parseReportListParams(searchParams), [searchParams]);
-  const [keywordInput, setKeywordInput] = useState(params.keyword ?? "");
+  const keywordSearchTimeoutRef = useRef<number | null>(null);
 
   const updateParams = useCallback(
     (next: Partial<ReportListParams>) => {
@@ -54,35 +54,34 @@ export function ReportListView() {
     [params, pathname, router]
   );
 
-  useEffect(() => {
-    setKeywordInput(params.keyword ?? "");
-  }, [params.keyword]);
+  const reportsQuery = useQuery({
+    queryKey: ["reports", params],
+    queryFn: () => getReports(params),
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000
+  });
 
-  useEffect(() => {
-    const keyword = keywordInput.trim();
+  const handleReset = () => {
+    if (keywordSearchTimeoutRef.current) {
+      window.clearTimeout(keywordSearchTimeoutRef.current);
+    }
+    router.replace(pathname as Route);
+  };
+
+  const handleKeywordChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const keyword = event.target.value.trim();
+
+    if (keywordSearchTimeoutRef.current) {
+      window.clearTimeout(keywordSearchTimeoutRef.current);
+    }
 
     if (keyword === (params.keyword ?? "")) {
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
+    keywordSearchTimeoutRef.current = window.setTimeout(() => {
       updateParams({ keyword, page: 0 });
     }, 250);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [keywordInput, params.keyword, updateParams]);
-
-  const reportsQuery = useQuery({
-    queryKey: ["reports", params],
-    queryFn: () => getReports(params),
-    staleTime: 60 * 1000
-  });
-
-  const handleReset = () => {
-    setKeywordInput("");
-    router.replace(pathname as Route);
   };
 
   const handleDateInputClick = (event: MouseEvent<HTMLInputElement>) => {
@@ -109,10 +108,11 @@ export function ReportListView() {
             <div className="flex h-10 min-w-72 items-center gap-2 rounded-md border border-slate-300 bg-white px-3">
               <Search className="h-4 w-4 text-muted" aria-hidden />
               <input
+                key={params.keyword ?? ""}
                 className="w-full border-0 bg-transparent text-sm outline-none"
                 placeholder="제목 또는 발급기관 검색"
-                value={keywordInput}
-                onChange={(event) => setKeywordInput(event.target.value)}
+                defaultValue={params.keyword ?? ""}
+                onChange={handleKeywordChange}
               />
             </div>
             <Button type="button" variant="secondary" onClick={handleReset} aria-label="조건 초기화">

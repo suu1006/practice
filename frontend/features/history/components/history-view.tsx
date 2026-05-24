@@ -20,7 +20,8 @@ export function HistoryView() {
   const historiesQuery = useQuery({
     queryKey: ["histories", { page, size: PAGE_SIZE }],
     queryFn: () => getHistories({ page, size: PAGE_SIZE }),
-    staleTime: 30 * 1000
+    staleTime: 30 * 1000,
+    gcTime: 3 * 60 * 1000
   });
 
   const histories = historiesQuery.data?.content ?? [];

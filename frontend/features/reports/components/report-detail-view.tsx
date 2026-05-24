@@ -19,6 +19,7 @@ export function ReportDetailView({ reportId }: ReportDetailViewProps) {
     queryFn: () => getReportDetail(reportId),
     enabled: Number.isFinite(Number(reportId)),
     staleTime: 0,
+    gcTime: 2 * 60 * 1000,
     refetchOnMount: "always"
   });
 
