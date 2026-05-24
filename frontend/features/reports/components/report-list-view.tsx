@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import type { Route } from "next";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -170,21 +169,49 @@ export function ReportListView() {
         {!reportsQuery.isLoading && !reportsQuery.isError && reports.length === 0 && (
           <StateMessage message="조건에 맞는 리포트가 없습니다." />
         )}
-        {reports.map((report) => (
-          <Link
-            key={report.id}
-            className="grid gap-2 border-b border-slate-100 p-5 last:border-b-0 hover:bg-slate-50 md:grid-cols-[1fr_140px_120px_120px]"
-            href={`/reports/${report.id}`}
-          >
-            <div>
-              <h2 className="font-medium text-ink">{report.title}</h2>
-              <p className="mt-1 text-sm text-muted">{report.agencyName}</p>
-            </div>
-            <span className="text-sm text-muted">점수 {report.creditScore}</span>
-            <span className="text-sm text-muted">{report.creditGrade}등급</span>
-            <span className="text-sm text-muted">{report.issuedAt}</span>
-          </Link>
-        ))}
+        {reports.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="min-w-[760px] w-full border-collapse text-left text-sm">
+              <thead className="bg-slate-50 text-xs font-semibold text-muted">
+                <tr className="border-b border-slate-200">
+                  <th className="px-5 py-3">리포트명</th>
+                  <th className="px-5 py-3">발급기관</th>
+                  <th className="px-5 py-3">점수</th>
+                  <th className="px-5 py-3">등급</th>
+                  <th className="px-5 py-3">발급일</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.map((report) => {
+                  const reportPath = `/reports/${report.id}` as Route;
+                  const handleRowKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      router.push(reportPath);
+                    }
+                  };
+
+                  return (
+                    <tr
+                      key={report.id}
+                      className="cursor-pointer border-b border-slate-100 last:border-b-0 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand"
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => router.push(reportPath)}
+                      onKeyDown={handleRowKeyDown}
+                    >
+                      <td className="px-5 py-4 font-medium text-ink">{report.title}</td>
+                      <td className="px-5 py-4 text-muted">{report.agencyName}</td>
+                      <td className="px-5 py-4 text-muted">{report.creditScore}</td>
+                      <td className="px-5 py-4 text-muted">{report.creditGrade}등급</td>
+                      <td className="px-5 py-4 text-muted">{report.issuedAt}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <div className="mt-5 flex items-center justify-between gap-3">
