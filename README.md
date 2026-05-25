@@ -43,6 +43,11 @@ frontend/
 └── types/                  # 공통 API 타입
 ```
 
+**컴포넌트 분리 기준**
+
+- `features/` : 도메인 단위로 API 호출, 타입, UI를 함께 응집. 도메인 간 의존은 허용하지 않습니다.
+- `components/` : 도메인을 모르는 순수 공통 컴포넌트 (`Button`, `StateMessage` 등). Props 인터페이스만으로 동작하며 외부 상태에 의존하지 않습니다.
+
 ### Backend 구조
 
 ```text
@@ -286,6 +291,9 @@ Authorization Header가 필요하며, DB에 저장된 Refresh Token 해시와 Co
 - **Refresh Token 저장 방식**: Cookie에는 실제 토큰을 두고, DB에는 SHA-256 해시만 저장했습니다. 토큰 원문이 DB에 남지 않도록 하기 위한 선택입니다.
 - **CSRF 대응**: Refresh Token Cookie는 `SameSite=Lax`, `HttpOnly`로 설정했습니다. 운영 환경이라면 HTTPS 기반 `Secure=true`와 CSRF 토큰 전략을 추가로 고려해야 합니다.
 - **민감정보 처리**: 주민등록번호는 JPA `AttributeConverter`로 암호화 저장하고, API 응답에서는 마스킹된 값만 제공합니다.
+- **API 본인 데이터 권한 검증**: 리포트 목록은 `email` 조건으로 필터링하고, 상세 조회는 `findByIdAndUserEmail()`로 소유권을 검증합니다. 다른 사용자의 리포트 ID로 요청해도 404가 반환됩니다. Spring Security의 `Principal`에서 추출한 이메일을 서비스 계층에 전달해 인증 정보와 데이터 접근 권한을 분리했습니다.
+- **서버 상태와 클라이언트 상태 분리**: TanStack Query로 리포트 목록·상세·조회 이력 등 서버 데이터를 관리하고, Zustand는 `accessToken`과 로그인 사용자(`user`)처럼 서버와 무관한 클라이언트 인증 상태만 담당합니다. 두 레이어가 섞이지 않도록 `queryClient.clear()`는 로그인·로그아웃 시점에만 호출합니다.
+- **TanStack Query 캐싱 전략**: 리포트 목록은 `staleTime: 60초 / gcTime: 5분`으로 목록 ↔ 상세 이동 시 즉시 표시하되 1분 뒤 background refetch합니다. 리포트 상세는 `staleTime: 0 / gcTime: 2분`으로 진입마다 항상 최신 데이터를 가져오고, 조회 이력은 `staleTime: 30초 / gcTime: 3분`으로 유지합니다. 상세 페이지 진입 성공 시 `useEffect`에서 이력 쿼리를 무효화해 마이페이지에 즉시 반영합니다. queryKey는 빈 문자열 파라미터를 `undefined`로 정규화해 필터 초기화 후에도 동일한 캐시를 재사용합니다.
 - **Next.js 14 유지**: `npm audit`은 Next 16 업그레이드를 권고하지만, 과제 명시 스택인 Next.js 14를 우선했습니다.
 
 ## 구현하지 못한 부분과 이유
