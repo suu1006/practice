@@ -1,11 +1,16 @@
 import { ReportDetailView } from "@/features/reports/components/report-detail-view";
 
 type ReportDetailPageProps = {
-  params: {
-    reportId: string;
-  };
+  params:
+    | {
+        reportId: string;
+      }
+    | Promise<{
+        reportId: string;
+      }>;
 };
 
-export default function ReportDetailPage({ params }: ReportDetailPageProps) {
-  return <ReportDetailView reportId={params.reportId} />;
+export default async function ReportDetailPage({ params }: ReportDetailPageProps) {
+  const { reportId } = await params;
+  return <ReportDetailView reportId={reportId} />;
 }
