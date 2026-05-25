@@ -92,6 +92,20 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("이미 가입된 이메일입니다."));
+                .andExpect(jsonPath("$.message").value("이미 가입한 계정입니다."));
+    }
+
+    @Test
+    void invalidSignupPasswordReturnsPolicyMessage() throws Exception {
+        mockMvc.perform(post("/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "invalid-password@example.com",
+                                  "password": "password"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].message").value("8자 이상, 영문 · 숫자 · 특수문자를 포함해야 합니다."));
     }
 }

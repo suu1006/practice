@@ -14,6 +14,19 @@ type AuthShellProps = {
   mode: "login" | "signup";
 };
 
+type ApiErrorResponse = {
+  message?: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+  }>;
+};
+
+const PASSWORD_POLICY_MESSAGE = "8자 이상, 영문 · 숫자 · 특수문자를 포함해야 합니다.";
+const PASSWORD_POLICY_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+const EMAIL_FORMAT_MESSAGE = "이메일 형식이 올바르지 않습니다.";
+const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function AuthShell({ mode }: AuthShellProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -26,7 +39,7 @@ export function AuthShell({ mode }: AuthShellProps) {
   const [form, setForm] = useState<AuthRequest>({ email: "", password: "" });
   const [clientError, setClientError] = useState<string | null>(null);
 
-  const mutation = useMutation<AuthResponse, AxiosError<{ message?: string }>, AuthRequest>({
+  const mutation = useMutation<AuthResponse, AxiosError<ApiErrorResponse>, AuthRequest>({
     mutationFn: isLogin ? login : signup,
     onSuccess: (response) => {
       queryClient.clear();
@@ -39,7 +52,8 @@ export function AuthShell({ mode }: AuthShellProps) {
     if (clientError) {
       return clientError;
     }
-    return mutation.error?.response?.data.message ?? "요청 처리 중 오류가 발생했습니다.";
+    const response = mutation.error?.response?.data;
+    return response?.errors?.[0]?.message ?? response?.message ?? "요청 처리 중 오류가 발생했습니다.";
   }, [clientError, mutation.error]);
 
   useEffect(() => {
@@ -57,6 +71,16 @@ export function AuthShell({ mode }: AuthShellProps) {
       return;
     }
 
+    if (!EMAIL_FORMAT_REGEX.test(form.email.trim())) {
+      setClientError(EMAIL_FORMAT_MESSAGE);
+      return;
+    }
+
+    if (!isLogin && !PASSWORD_POLICY_REGEX.test(form.password)) {
+      setClientError(PASSWORD_POLICY_MESSAGE);
+      return;
+    }
+
     mutation.mutate({
       email: form.email.trim(),
       password: form.password
@@ -68,7 +92,7 @@ export function AuthShell({ mode }: AuthShellProps) {
       <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
         <h1 className="text-2xl font-semibold text-ink">{isLogin ? "로그인" : "회원가입"}</h1>
         <p className="mt-2 text-sm text-muted">이메일과 비밀번호로 신용평가 리포트 서비스에 접속합니다.</p>
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-4" noValidate onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-ink">
             이메일
             <input
@@ -88,11 +112,6 @@ export function AuthShell({ mode }: AuthShellProps) {
               value={form.password}
               onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
             />
-            {!isLogin && (
-              <span className="mt-1.5 block text-xs text-muted">
-                8자 이상, 영문 · 숫자 · 특수문자를 포함해야 합니다.
-              </span>
-            )}
           </label>
           {(clientError || mutation.isError) && (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p>

@@ -30,7 +30,7 @@ public class AuthService {
         // 1. 이메일 중복 체크
         String email = normalizeEmail(request.getEmail());
         if (userRepository.existsByEmail(email)) {
-            throw new BusinessException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
+            throw new BusinessException(HttpStatus.CONFLICT, "이미 가입한 계정입니다.");
         }
 
         // 2. 사용자 생성
