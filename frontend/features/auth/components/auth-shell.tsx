@@ -74,7 +74,6 @@ export function AuthShell({ mode }: AuthShellProps) {
             <input
               className="mt-2 h-11 w-full rounded-md border border-slate-300 px-3 outline-none focus:border-brand"
               type="email"
-              placeholder="test@example.com"
               autoComplete="email"
               value={form.email}
               onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
@@ -85,7 +84,6 @@ export function AuthShell({ mode }: AuthShellProps) {
             <input
               className="mt-2 h-11 w-full rounded-md border border-slate-300 px-3 outline-none focus:border-brand"
               type="password"
-              placeholder="Password1!"
               autoComplete={isLogin ? "current-password" : "new-password"}
               value={form.password}
               onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
