@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { login, signup } from "@/features/auth/api/auth-api";
 import type { AuthRequest, AuthResponse } from "@/features/auth/types";
@@ -38,6 +39,7 @@ export function AuthShell({ mode }: AuthShellProps) {
   const setSession = useAuthStore((state) => state.setSession);
   const [form, setForm] = useState<AuthRequest>({ email: "", password: "" });
   const [clientError, setClientError] = useState<string | null>(null);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const mutation = useMutation<AuthResponse, AxiosError<ApiErrorResponse>, AuthRequest>({
     mutationFn: isLogin ? login : signup,
@@ -103,16 +105,32 @@ export function AuthShell({ mode }: AuthShellProps) {
               onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
             />
           </label>
-          <label className="block text-sm font-medium text-ink">
-            비밀번호
-            <input
-              className="mt-2 h-11 w-full rounded-md border border-slate-300 px-3 outline-none focus:border-brand"
-              type="password"
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-            />
-          </label>
+          <div className="text-sm font-medium text-ink">
+            <label htmlFor="auth-password">비밀번호</label>
+            <span className="relative mt-2 block">
+              <input
+                id="auth-password"
+                className="h-11 w-full rounded-md border border-slate-300 py-0 pl-3 pr-11 outline-none focus:border-brand"
+                type={isPasswordVisible ? "text" : "password"}
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                value={form.password}
+                onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+              />
+              <button
+                className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted transition hover:bg-slate-100 hover:text-ink focus:outline-none focus:ring-2 focus:ring-brand"
+                type="button"
+                aria-label={isPasswordVisible ? "입력값 숨기기" : "입력값 보기"}
+                aria-pressed={isPasswordVisible}
+                onClick={() => setIsPasswordVisible((prev) => !prev)}
+              >
+                {isPasswordVisible ? (
+                  <EyeOff className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+            </span>
+          </div>
           {(clientError || mutation.isError) && (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p>
           )}

@@ -77,6 +77,20 @@ test("회원가입 이메일 형식 오류를 표시한다", async ({ page }) =>
   await expect(page.getByText("이메일 형식이 올바르지 않습니다.")).toBeVisible();
 });
 
+test("비밀번호 보기 버튼으로 입력값 표시를 전환한다", async ({ page }) => {
+  await page.goto("/signup");
+  const passwordInput = page.getByLabel("비밀번호");
+
+  await passwordInput.fill("Password1!");
+  await expect(passwordInput).toHaveAttribute("type", "password");
+
+  await page.getByRole("button", { name: "입력값 보기" }).click();
+  await expect(passwordInput).toHaveAttribute("type", "text");
+
+  await page.getByRole("button", { name: "입력값 숨기기" }).click();
+  await expect(passwordInput).toHaveAttribute("type", "password");
+});
+
 test("이미 가입한 계정으로 회원가입하면 오류를 표시한다", async ({ page }) => {
   await page.goto("/signup");
   await page.getByLabel("이메일").fill("test@example.com");
